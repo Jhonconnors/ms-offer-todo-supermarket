@@ -1,0 +1,235 @@
+openapi: 3.0.3
+info:
+  title: Offer-Todo
+  description: API para listar productos de supermercado y medicamentos de farmacia. Respuestas en español.
+  version: "1.0.0"
+servers:
+  - url: https://api.tu-dominio.com
+    description: Servidor de producción
+  - url: https://staging.api.tu-dominio.com
+    description: Servidor de staging
+
+paths:
+  /v1/supermarkets/product:
+    get:
+      summary: Buscar productos de supermercado
+      description: Devuelve una lista paginada de productos de supermercado que coincidan con la búsqueda o filtros.
+      parameters:
+        - name: q
+          in: query
+          description: Término de búsqueda (nombre, marca).
+          required: true
+          schema:
+            type: string
+        - name: comuna
+          in: query
+          description: Comuna (Las condes).
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Lista de productos de supermercado (paginada).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductListSupermarket'
+              examples:
+                ejemplo:
+                  value:
+                    items:
+                      - nombre: "Arroz Blanco 1kg"
+                        descripcion: "Arroz tipo largo fino, paquete 1kg."
+                        imagen: "https://cdn.jumbo.cl/images/arroz-1kg.jpg"
+                        supermercadoUrl: "https://www.jumbo.cl/productos/arroz-1kg"
+                        precioUnitario:
+                          valor: 1090
+                          moneda: "CLP"
+                      - nombre: "Aceite Girasol 1L"
+                        descripcion: "Aceite de girasol refinado, 1 litro."
+                        imagen: "https://cdn.jumbo.cl/images/aceite-1l.jpg"
+                        supermercadoUrl: "https://www.jumbo.cl/productos/aceite-1l"
+                        precioUnitario:
+                          valor: 2590
+                          moneda: "CLP"
+        "400":
+          description: Parámetros inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /v1/farmacy/medicament/product:
+    get:
+      summary: Buscar medicamentos en farmacia
+      description: Devuelve una lista paginada de medicamentos disponibles en farmacias.
+      parameters:
+        - name: q
+          in: query
+          description: Término de búsqueda (nombre, marca).
+          required: true
+          schema:
+            type: string
+        - name: comuna
+          in: query
+          description: Comuna (Las condes).
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Lista de medicamentos de farmacia (paginada).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductListPharmacy'
+              examples:
+                ejemplo:
+                  value:
+                    items:
+                      - nombre: "Paracetamol 500mg"
+                        descripcion: "Tabletas de 500 mg. Analgésico y antipirético."
+                        imagen: "https://cdn.farmacia.cl/images/paracetamol-500.jpg"
+                        farmaciaUrl: "https://www.farmacia.cl/productos/paracetamol-500"
+                        precioUnitario:
+                          valor: 990
+                          moneda: "CLP"
+                      - nombre: "Ibuprofeno 400mg"
+                        descripcion: "Tabletas de 400 mg. Antiinflamatorio."
+                        imagen: "https://cdn.farmacia.cl/images/ibuprofeno-400.jpg"
+                        farmaciaUrl: "https://www.farmacia.cl/productos/ibuprofeno-400"
+                        precioUnitario:
+                          valor: 1290
+                          moneda: "CLP"
+        "400":
+          description: Parámetros inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "500":
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  schemas:
+    Precio:
+      type: object
+      description: Precio unitario del producto.
+      properties:
+        valor:
+          type: number
+          format: double
+          description: Valor numérico del precio en la moneda indicada.
+          example: 1090
+        moneda:
+          type: string
+          description: Código de moneda (ISO), p. ej. "CLP".
+          example: "CLP"
+      required:
+        - valor
+        - moneda
+
+    ProductSupermarket:
+      type: object
+      description: Producto de supermercado.
+      properties:
+        nombre:
+          type: string
+          description: Nombre del producto.
+          example: "Arroz Blanco 1kg"
+        descripcion:
+          type: string
+          description: Descripción corta del producto.
+          example: "Arroz tipo largo fino, paquete 1kg."
+        imagen:
+          type: string
+          format: uri
+          description: URL a la imagen del producto.
+          example: "https://cdn.jumbo.cl/images/arroz-1kg.jpg"
+        supermercadoUrl:
+          type: string
+          format: uri
+          description: URL del producto en el sitio del supermercado.
+          example: "https://www.jumbo.cl/productos/arroz-1kg"
+        precioUnitario:
+          $ref: '#/components/schemas/Precio'
+      required:
+        - nombre
+        - precioUnitario
+        - supermercadoUrl
+
+    ProductPharmacy:
+      type: object
+      description: Producto de farmacia / medicamento.
+      properties:
+        nombre:
+          type: string
+          description: Nombre comercial del medicamento.
+          example: "Paracetamol 500mg"
+        descripcion:
+          type: string
+          description: Descripción corta o principio activo.
+          example: "Tabletas de 500 mg. Analgésico y antipirético."
+        imagen:
+          type: string
+          format: uri
+          description: URL a la imagen del producto o empaque.
+          example: "https://cdn.farmacia.cl/images/paracetamol-500.jpg"
+        farmaciaUrl:
+          type: string
+          format: uri
+          description: URL del producto en el sitio de la farmacia.
+          example: "https://www.farmacia.cl/productos/paracetamol-500"
+        precioUnitario:
+          $ref: '#/components/schemas/Precio'
+      required:
+        - nombre
+        - precioUnitario
+        - farmaciaUrl
+
+    ProductListSupermarket:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductSupermarket'
+      required:
+        - items
+
+    ProductListPharmacy:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductPharmacy'
+      required:
+        - items
+
+    ErrorResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 400
+        message:
+          type: string
+          example: "Parámetros inválidos"
+        details:
+          type: array
+          items:
+            type: string
+      required:
+        - code
+        - message
