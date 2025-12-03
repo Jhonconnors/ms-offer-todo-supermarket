@@ -1,2 +1,16 @@
+spring:
+  output:
+    ansi:
+      enabled: always
+
 server:
   port: 7780
+
+app:
+  security:
+    # URL del servidor de identidad
+    token-server-url: http://localhost:9397
+
+# Configuración de IPs permitidas
+security:
+  allowed-ips: ${ALLOWED_IPS:127.0.0.1,192.168.1.44}
