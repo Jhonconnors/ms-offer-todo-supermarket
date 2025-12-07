@@ -6,8 +6,6 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 @Component
-// @ConfigurationProperties: Esta es la magia.
-// Le dice a Spring: "Busca en application.yml todo lo que empiece con la palabra 'security'"
 @ConfigurationProperties(prefix = "security")
 public class IpSecurityProperties {
 
